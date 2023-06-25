@@ -47,7 +47,7 @@ if args.stemming:
     # Isolate vocals from the rest of the audio
 
     return_code = os.system(
-        f'python3 -m demucs.separate -n htdemucs --two-stems=vocals "{args.audio}" -o "temp_outputs"'
+        f'python3.9 -m demucs.separate -n htdemucs --two-stems=vocals "{args.audio}" -o "temp_outputs"'
     )
 
     if return_code != 0:
@@ -128,37 +128,37 @@ with open(os.path.join(temp_path, "pred_rttms", "mono_file.rttm"), "r") as f:
 
 wsm = get_words_speaker_mapping(word_timestamps, speaker_ts, "start")
 
-if info.language in punct_model_langs:
-    # restoring punctuation in the transcript to help realign the sentences
-    punct_model = PunctuationModel(model="kredor/punctuate-all")
+# if info.language in punct_model_langs:
+#     # restoring punctuation in the transcript to help realign the sentences
+#     punct_model = PunctuationModel(model="kredor/punctuate-all")
 
-    words_list = list(map(lambda x: x["word"], wsm))
+#     words_list = list(map(lambda x: x["word"], wsm))
 
-    labled_words = punct_model.predict(words_list)
+#     labled_words = punct_model.predict(words_list)
 
-    ending_puncts = ".?!"
-    model_puncts = ".,;:!?"
+#     ending_puncts = ".?!"
+#     model_puncts = ".,;:!?"
 
-    # We don't want to punctuate U.S.A. with a period. Right?
-    is_acronym = lambda x: re.fullmatch(r"\b(?:[a-zA-Z]\.){2,}", x)
+#     # We don't want to punctuate U.S.A. with a period. Right?
+#     is_acronym = lambda x: re.fullmatch(r"\b(?:[a-zA-Z]\.){2,}", x)
 
-    for word_dict, labeled_tuple in zip(wsm, labled_words):
-        word = word_dict["word"]
-        if (
-            word
-            and labeled_tuple[1] in ending_puncts
-            and (word[-1] not in model_puncts or is_acronym(word))
-        ):
-            word += labeled_tuple[1]
-            if word.endswith(".."):
-                word = word.rstrip(".")
-            word_dict["word"] = word
+#     for word_dict, labeled_tuple in zip(wsm, labled_words):
+#         word = word_dict["word"]
+#         if (
+#             word
+#             and labeled_tuple[1] in ending_puncts
+#             and (word[-1] not in model_puncts or is_acronym(word))
+#         ):
+#             word += labeled_tuple[1]
+#             if word.endswith(".."):
+#                 word = word.rstrip(".")
+#             word_dict["word"] = word
 
-    wsm = get_realigned_ws_mapping_with_punctuation(wsm)
-else:
-    logging.warning(
-        f'Punctuation restoration is not available for {info.language} language.'
-    )
+#     wsm = get_realigned_ws_mapping_with_punctuation(wsm)
+# else:
+#     logging.warning(
+#         f'Punctuation restoration is not available for {info.language} language.'
+#     )
 
 ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
 

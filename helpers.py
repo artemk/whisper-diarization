@@ -75,7 +75,7 @@ def create_config(output_dir):
     if (platform.machine() == "arm64") or (platform.machine() == "aarch64"):
         config.num_workers = 0
     else:
-        config.num_workers = 1  # Workaround for multiprocessing hanging with ipython issue
+        config.num_workers = 0  # Workaround for multiprocessing hanging with ipython issue
 
     config.diarizer.manifest_filepath = os.path.join(data_dir, "input_manifest.json")
     config.diarizer.out_dir = (
